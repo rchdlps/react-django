@@ -11,24 +11,27 @@ User = get_user_model()
 
 
 class UserPublicSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=False, allow_blank=True, read_only=True)
+    username = serializers.CharField(
+        required=False, allow_blank=True, read_only=True)
+
     class Meta:
         model = User
         fields = [
-            'username',  
+            'username',
             'first_name',
             'last_name',
-            ]
-    
+        ]
+
 
 class PostSerializer(serializers.ModelSerializer):
-    url             = serializers.HyperlinkedIdentityField(
-                            view_name='posts-api:detail',
-                            lookup_field='slug'
-                            )
-    user            = UserPublicSerializer(read_only=True)
-    publish         = serializers.DateField(default=timezone.now())
-    
+    url = serializers.HyperlinkedIdentityField(
+        view_name='posts-api:detail',
+        lookup_field='slug'
+    )
+    user = UserPublicSerializer(read_only=True)
+    publish = serializers.DateField(default=timezone.now())
+    owner = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Post
         fields = [
@@ -40,5 +43,13 @@ class PostSerializer(serializers.ModelSerializer):
             'draft',
             'publish',
             'updated',
+            'owner',
             'timestamp',
         ]
+
+    def get_owner(self, obj):
+        request = self.context['request']
+        if request.user.is_authenticated:
+            if obj.user == request.user:
+                return True
+        return False

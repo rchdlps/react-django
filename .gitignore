@@ -136,3 +136,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# VScode
+.vscode/
+src/.vscode
+
+pip-selfcheck.json
